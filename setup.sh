@@ -2,7 +2,11 @@
 # setup.sh — verify you're in the right place, then clone or pull YOUR repo.
 # Run this once per lab, at the START of every session, from your home directory.
 #
-#   bash setup.sh
+#   bash setup.sh [folder-name]
+#
+# Optional argument: the local folder name to clone into. Defaults to the
+# repo name. Use it when your lesson says to clone into a specific folder,
+# e.g.  bash setup.sh compmath-lab
 #
 # It refuses to do anything unless your current directory is your home directory.
 # Cloning into the wrong folder scatters your work where you can't find it.
@@ -10,6 +14,7 @@
 set -euo pipefail
 
 REPO="compmath-u1-calculator-lab"   # <- the lesson script rewrites this line
+FOLDER="${1:-}"
 
 die() { printf '\n[STOP] %s\n\n' "$1" >&2; exit 1; }
 
@@ -30,7 +35,8 @@ printf 'Your userid: %s\n\n' "$(whoami)"
 # Repo names are <base>-<userid>_student : dash before the userid, underscore
 # before "student". $(whoami) inserts your userid, so this is the same for everyone.
 MY_REPO="${REPO}-$(whoami)_student"
-DIR="$HOME_DIR/$MY_REPO"
+[ -n "$FOLDER" ] || FOLDER="$MY_REPO"
+DIR="$HOME_DIR/$FOLDER"
 URL="https://github.com/ivycollegiate-development/${MY_REPO}.git"
 
 # ---- 3. Clone if missing, otherwise pull -------------------------------------
@@ -44,7 +50,8 @@ if [ -d "$DIR/.git" ]; then
 else
   printf 'Repo not found yet. Cloning it now...\n\n'
   printf '  %s\n\n' "$URL"
-  git clone "$URL" || die "Clone failed.
+  # git clone names the folder after the URL, so pass the folder explicitly
+  git clone "$URL" "$FOLDER" || die "Clone failed.
      If it asked for a username/password: use your GitHub username and a
      Personal Access Token (PAT) — never your GitHub password.
      If it says repository not found, check the exact URL in your lesson."
@@ -55,7 +62,7 @@ fi
 
 # ---- 4. Prove we landed in the right place -----------------------------------
 ACTUAL="$(basename "$(pwd)")"
-[ "$ACTUAL" = "$MY_REPO" ] || die "Wrong folder: you are in $(pwd), expected $MY_REPO"
+[ "$ACTUAL" = "$FOLDER" ] || die "Wrong folder: you are in $(pwd), expected $FOLDER"
 
 git config pull.rebase false
 printf '[OK] Verified: %s\n' "$ACTUAL"
