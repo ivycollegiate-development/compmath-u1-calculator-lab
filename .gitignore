@@ -1,0 +1,8 @@
+# Adversarial probe files are generated per-student, in class.
+# Committing yours would let classmates predict your attack set.
+attack_probes.py
+
+# Python noise
+__pycache__/
+*.pyc
+.venv/
